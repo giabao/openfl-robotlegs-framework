@@ -28,6 +28,8 @@ class ObjectProcessor
 	/* Public Functions                                                           */
 	/*============================================================================*/
 
+	public function new() { }
+	
 	/**
 	 * Add a handler to process objects that match a given matcher.
 	 * @param matcher The matcher

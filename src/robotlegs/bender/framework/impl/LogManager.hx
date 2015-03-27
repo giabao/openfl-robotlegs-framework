@@ -54,6 +54,8 @@ class LogManager implements ILogTarget
 	/* Public Functions                                                           */
 	/*============================================================================*/
 
+	public function new() { }
+	
 	/**
 	 * Retrieves a logger for a given source
 	 * @param source Logging source

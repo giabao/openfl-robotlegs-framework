@@ -161,6 +161,10 @@ interface IInjector extends IEventDispatcher
 	 * @param applicationDomain The ApplicationDomain
 	 */
 	public var applicationDomain(get, set):ApplicationDomain;
+	//add this function to bypass compile error in haxe 3.2.0-rc.2:
+	//Field set_applicationDomain has different type than in robotlegs.bender.framework.api.IInjector
+	//Optional attribute of parameter applicationDomain differs
+	private function set_applicationDomain(applicationDomain:ApplicationDomain = null):ApplicationDomain;
 	/**
 	 * The ApplicationDomain used for type reflection
 	 */
