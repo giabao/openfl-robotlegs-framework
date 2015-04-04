@@ -1,3 +1,4 @@
+#if !flash
 package robotlegs.bender.extensions.viewManager.impl;
 
 import msignal.Signal.Signal1;
@@ -130,3 +131,4 @@ private class DisplayObjectTracker {
 		display = d;
 	}
 }
+#end
