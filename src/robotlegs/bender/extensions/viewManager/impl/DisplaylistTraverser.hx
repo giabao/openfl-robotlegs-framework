@@ -22,7 +22,7 @@ class DisplaylistTraverser
 	
 	public var active:Bool = true;
 	public var childAdded = new Signal1(DisplayObject);
-	public var childRemoved = new Signal1(DisplayObject);
+//	public var childRemoved = new Signal1(DisplayObject);
 	
 	public function new(display:DisplayObjectContainer) 
 	{
@@ -80,7 +80,7 @@ class DisplaylistTraverser
 				if (Std.is(child, DisplayObjectContainer)) {
 					var traverser = new DisplaylistTraverser(cast(child));
 					traverser.childAdded.add(OnChildrenAdded);
-					traverser.childRemoved.add(OnChildrenRemove);
+//					traverser.childRemoved.add(OnChildrenRemove);
 
 					childTraversers.push(traverser);
 				} else {
@@ -94,9 +94,9 @@ class DisplaylistTraverser
 			if (!childTraversers[l].active) {
 				var traverserToRemove = childTraversers[l];
 				traverserToRemove.childAdded.remove(OnChildrenAdded);
-				traverserToRemove.childRemoved.remove(OnChildrenRemove);
+//				traverserToRemove.childRemoved.remove(OnChildrenRemove);
 				childTraversers.splice(l, 1);
-				childRemoved.dispatch(traverserToRemove.display);
+//				childRemoved.dispatch(traverserToRemove.display);
 				traverserToRemove.dispose();
 			}
 		}
@@ -118,10 +118,10 @@ class DisplaylistTraverser
 		childAdded.dispatch(display);
 	}
 	
-	private function OnChildrenRemove(display:DisplayObject):Void
-	{
-		childRemoved.dispatch(display);
-	}
+//	private function OnChildrenRemove(display:DisplayObject):Void
+//	{
+//		childRemoved.dispatch(display);
+//	}
 }
 
 private class DisplayObjectTracker {
