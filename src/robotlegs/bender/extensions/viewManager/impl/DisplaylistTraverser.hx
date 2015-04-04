@@ -15,6 +15,9 @@ class DisplaylistTraverser
 	public var display:DisplayObjectContainer;
 	private var numChildrenRegistered(get, null):Int = 0;
 	private var childTraversers:Array<DisplaylistTraverser> = [];
+
+	//tracking children that are not of type DisplayObjectContainer
+	private var childTrackers: Array<DisplayObjectTracker> = [];
 	
 	public var active:Bool = true;
 	public var childAdded = new Signal1(DisplayObject);
@@ -44,34 +47,49 @@ class DisplaylistTraverser
 	
 	function Update() 
 	{
-		for (k in 0...childTraversers.length) 
-		{
-			childTraversers[k].active = false;
+		for (c in childTraversers) {
+			c.active = false;
+		}
+		for (c in childTrackers) {
+			c.active = false;
 		}
 		
 		for (i in 0...display.numChildren) 
 		{
 			var alreadyAdded:Bool = false;
-			for (j in 0...childTraversers.length) 
-			{
-				if (display.getChildAt(i) == childTraversers[j].display) {
-					childTraversers[j].active = true;
+			var child = display.getChildAt(i);
+			for (c in childTrackers) {
+				if (child == c.display) {
+					c.active = true;
 					alreadyAdded = true;
 					break;
 				}
 			}
-			
 			if (!alreadyAdded) {
-				var traverser = new DisplaylistTraverser(cast(display.getChildAt(i)));
-				traverser.childAdded.add(OnChildrenAdded);
-				traverser.childRemoved.add(OnChildrenRemove);
-				
-				childTraversers.push(traverser);
-				childAdded.dispatch(display.getChildAt(i));
+				for (c in childTraversers) {
+					if (child == c.display) {
+						c.active = true;
+						alreadyAdded = true;
+						break;
+					}
+				}
+			}
+
+			if (!alreadyAdded) {
+				if (Std.is(child, DisplayObjectContainer)) {
+					var traverser = new DisplaylistTraverser(cast(child));
+					traverser.childAdded.add(OnChildrenAdded);
+					traverser.childRemoved.add(OnChildrenRemove);
+
+					childTraversers.push(traverser);
+				} else {
+					childTrackers.push(new DisplayObjectTracker(child));
+				}
+				childAdded.dispatch(child);
 			}
 		}
-		for (l in 0...childTraversers.length) 
-		{
+		var l = childTraversers.length;
+		while(--l >= 0) { //need iterate backward
 			if (!childTraversers[l].active) {
 				var traverserToRemove = childTraversers[l];
 				traverserToRemove.childAdded.remove(OnChildrenAdded);
@@ -81,11 +99,17 @@ class DisplaylistTraverser
 				traverserToRemove.dispose();
 			}
 		}
+		l = childTrackers.length;
+		while(--l >= 0) {
+			if (!childTrackers[l].active) {
+				childTrackers.splice(l, 1);
+			}
+		}
 	}
 	
 	private function get_numChildrenRegistered():Int 
 	{
-		return childTraversers.length;
+		return childTraversers.length + childTrackers.length;
 	}
 	
 	private function OnChildrenAdded(display:DisplayObject):Void
@@ -96,5 +120,13 @@ class DisplaylistTraverser
 	private function OnChildrenRemove(display:DisplayObject):Void
 	{
 		childRemoved.dispatch(display);
+	}
+}
+
+private class DisplayObjectTracker {
+	public var display:DisplayObject;
+	public var active:Bool = true;
+	public function new(d: DisplayObject) {
+		display = d;
 	}
 }
